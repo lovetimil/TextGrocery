@@ -30,18 +30,23 @@ class GroceryTextPreProcessor(object):
 
     @staticmethod
     def _default_tokenize(text):
-        return jieba.cut(text.strip(), cut_all=True)
+        #return jieba.cut(text.strip(), cut_all=True)
+        return jieba.cut(text.strip(), cut_all=False)
+
+    def purification(self,text,remove_stopwords=False):
+    	text = BeautifulSoup(text).get_text()
+	text = re.sub("[a-zA-Z]","",text)
+	if remove_stopwords:
+		pass
+	return text
 
     def preprocess(self, text, custom_tokenize):
+    	text = self.purification(text)
         if custom_tokenize is not None:
             tokens = custom_tokenize(text)
         else:
             tokens = self._default_tokenize(text)
-        ret = []
-        for idx, tok in enumerate(tokens):
-            if tok not in self.tok2idx:
-                self.tok2idx[tok] = len(self.tok2idx)
-            ret.append(self.tok2idx[tok])
+	ret = ' '.join(tokens)
         return ret
 
     def save(self, dest_file):
@@ -58,37 +63,43 @@ class GroceryTextPreProcessor(object):
 
 class GroceryFeatureGenerator(object):
     def __init__(self):
-        self.ngram2fidx = {'>>dummy<<': 0}
-        self.fidx2ngram = None
+	self.stop_words = None
+	self.tfidfpath = 'resource/tf_idf.pickle'
+	self.tfidf = TfidVectorizer(max_features=4000,
+		ngram_range(1,3),sublinear_tf = True)
+    def settfidf(self,stopwords_path=None,max_features=4000):
+        if  stop_words != None:
+		words = self.get_stopwords(stopwords_path)
+    		self.ifidf.set_params(stop_words=words)
+	if max_features != 4000:
+    		self.ifidf.set_params(max_features=max_features)
+	return self
+    def get_stopwords(self,stop_words_path):
+    	try:
+	    with open(stop_words_path,'r') as fin:
+	        contents = fin.read().decode('utf-8')
+	 except IOError:
+	 	raise ValueError("the given stop words path  is in invalid.")
+	for line in contents.splitlines():
+		self.stop_words.add(line.strip())
+    def fit_transform(self,textlist):
+    	if self.tiidf is None:
+		self.load_tfidf()
+    	if isinstance(textlist,list):
+	    tf = self.tfidf.fit_transform(textlist)
+	    with open(self.tfidfpath,'w') as fout:
+	        pickle.dump(tf)
+	    return tf
+    def load_tfidf(self):
+        with open(self.tfidfpath,'r') as fin:
+	    self.tfidf = pickle.load(fin)
 
-    def unigram(self, tokens):
-        feat = defaultdict(int)
-        NG = self.ngram2fidx
-        for x in tokens:
-            if (x,) not in NG:
-                NG[x,] = len(NG)
-            feat[NG[x,]] += 1
-        return feat
+	    		
+    def transform(self,textlist):
+        if ininstance(textlist,list):
+	    return self.tfidf.transform(textlist)
 
-    def bigram(self, tokens):
-        feat = self.unigram(tokens)
-        NG = self.ngram2fidx
-        for x, y in zip(tokens[:-1], tokens[1:]):
-            if (x, y) not in NG:
-                NG[x, y] = len(NG)
-            feat[NG[x, y]] += 1
-        return feat
-
-    def save(self, dest_file):
-        self.fidx2ngram = _dict2list(self.ngram2fidx)
-        config = {'fidx2ngram': self.fidx2ngram}
-        cPickle.dump(config, open(dest_file, 'wb'), -1)
-
-    def load(self, src_file):
-        config = cPickle.load(open(src_file, 'rb'))
-        self.fidx2ngram = config['fidx2ngram']
-        self.ngram2fidx = _list2dict(self.fidx2ngram)
-        return self
+    	
 
 
 class GroceryClassMapping(object):
