@@ -1,2 +1,2 @@
-from .learner import *
-del learner
+from .LRlearner import *
+del LRlearner

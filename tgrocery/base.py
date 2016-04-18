@@ -67,7 +67,8 @@ class GroceryTestResult(object):
 class GroceryPredictResult(object):
     def __init__(self, predicted_y=None, dec_values=None, labels=None):
         self.predicted_y = predicted_y
-        self.dec_values = dict(zip(labels, dec_values))
+        if dec_values != None:
+            self.dec_values = dict(zip(labels, dec_values))
 
     def __str__(self):
         return self.predicted_y

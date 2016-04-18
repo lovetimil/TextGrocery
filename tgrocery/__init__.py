@@ -27,11 +27,14 @@ class Grocery(object):
         return self.model is not None and isinstance(self.model, GroceryTextModel)
 
     def train(self, train_src, delimiter='\t'):
+        text,label = train_src
         text_converter = GroceryTextConverter(custom_tokenize=self.custom_tokenize)
         self.train_svm_file = '%s_train.svm' % self.name
-        text_converter.convert_text(train_src, output=self.train_svm_file, delimiter=delimiter)
+        #text_converter.convert_text(train_src, output=self.train_svm_file, delimiter=delimiter)
+        train_in = text_converter.to_model(text,label)
         # default parameter
-        model = train(self.train_svm_file, '', '-s 4')
+        #model = train(self.train_svm_file, '', '-s 4')
+        model = train(train_in)
         self.model = GroceryTextModel(text_converter, model)
         return self
 

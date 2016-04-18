@@ -29,7 +29,8 @@ class GroceryTextModel(object):
         except IOError:
             raise ValueError("The given model is invalid.")
         self.text_converter.load(model_name + '/converter')
-        self.svm_model = LearnerModel(model_name + '/learner')
+        #self.svm_model = LearnerModel(model_name + '/learner')
+        self.svm_model = LearnerModel('').load(model_name+'/learner')
 
     def save(self, model_name, force=False):
         if self.svm_model is None:
@@ -52,14 +53,16 @@ class GroceryTextModel(object):
         # process unicode type
         if isinstance(text, unicode):
             text = text.encode('utf-8')
-        if not isinstance(text, str):
-            raise TypeError('The argument should be plain text')
-        text = self.text_converter.to_svm(text)
-        y, dec = predict_one(text, self.svm_model)
-        y = self.text_converter.get_class_name(int(y))
-        labels = [self.text_converter.get_class_name(k) for k in
-                  self.svm_model.label[:self.svm_model.nr_class]]
-        return GroceryPredictResult(predicted_y=y, dec_values=dec[:self.svm_model.nr_class], labels=labels)
+        #if not isinstance(text, str):
+        #    raise TypeError('The argument should be plain text')
+        feat = self.text_converter.to_model(text)
+        #y, dec = predict_one(text, self.svm_model)
+        y = predict(feat, self.svm_model)
+        y = [self.text_converter.get_class_name(int(e)) for e in y]
+    #    labels = [self.text_converter.get_class_name(k) for k in
+    #              self.svm_model.label[:self.svm_model.nr_class]]
+        #return GroceryPredictResult(predicted_y=y, dec_values=dec[:self.svm_model.nr_class], labels=labels)
+        return GroceryPredictResult(predicted_y=y)
 
 
 class GroceryTest(object):
@@ -67,14 +70,17 @@ class GroceryTest(object):
         self.model = model
 
     def test(self, text_src, delimiter):
-        text_src = read_text_src(text_src, delimiter)
-        true_y = []
+        test,label = text_src;
+        #feat = self.model.text_converter.to_model(test)    
+        #text_src = read_text_src(text_src, delimiter)
+        true_y = label
         predicted_y = []
-        for line in text_src:
-            try:
-                label, text = line
-            except ValueError:
-                continue
-            predicted_y.append(self.model.predict_text(text).predicted_y)
-            true_y.append(label)
+        predicted_y=self.model.predict_text(test).predicted_y
+#        for line in text_src:
+#            try:
+#                label, text = line
+#            except ValueError:
+#                continue
+#            predicted_y.append(self.model.predict_text(text).predicted_y)
+#            true_y.append(label)
         return GroceryTestResult(true_y, predicted_y)
