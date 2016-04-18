@@ -61,7 +61,11 @@ copy_grocery = Grocery('test')
 copy_grocery.load()
 #copy_grocery = grocery
 test_in = [test['contents'],test['type']]
-test_result = copy_grocery.test(test_in)
-print test_result.show_result()
+#输入类似 ['我是中国人','台北*****']
+#输出 [11,12]
+test_result = copy_grocery.predict(test['contents'])
+print test_result.predicted_y
+#test_result = copy_grocery.test(test_in)
+#print test_result.show_result()
 
 
