@@ -3,7 +3,7 @@
 from tgrocery import Grocery 
 
 
-copy_grocery = Grocery('classfynews_instance')
+copy_grocery = Grocery('./classfynews_instance')#模型所在路径
 copy_grocery.load()
 #copy_grocery = grocery
 test = ['我是中国人','台北*****']

@@ -43,7 +43,7 @@ for _id,_type,contents in reslist:
 train = DataFrame(dic)
 test = DataFrame(tdic)
 #
-
+#classfynews_instance 是模型保存路径
 grocery = Grocery('classfynews_instance')
 
 train_in = [train['contents'],train['type']]
