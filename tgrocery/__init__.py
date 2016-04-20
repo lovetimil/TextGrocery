@@ -28,7 +28,7 @@ class Grocery(object):
 
     def train(self, train_src, delimiter='\t'):
         text,label = train_src
-        text_converter = GroceryTextConverter(custom_tokenize=self.custom_tokenize)
+        text_converter = GroceryTextConverter(name= self.name,custom_tokenize=self.custom_tokenize)
         self.train_svm_file = '%s_train.svm' % self.name
         #text_converter.convert_text(train_src, output=self.train_svm_file, delimiter=delimiter)
         train_in = text_converter.to_model(text,label)
@@ -54,7 +54,7 @@ class Grocery(object):
         self.model.save(self.name, force=True)
 
     def load(self):
-        text_converter = GroceryTextConverter(custom_tokenize=self.custom_tokenize)
+        text_converter = GroceryTextConverter(name=self.name,custom_tokenize=self.custom_tokenize)
         self.model = GroceryTextModel(text_converter)
         self.model.load(self.name)
 

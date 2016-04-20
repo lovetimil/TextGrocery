@@ -87,12 +87,13 @@ class GroceryFeatureGenerator(object):
             with open(stop_words_path,'r') as fin:
                 contents = fin.read().decode('utf-8')
         except IOError:
-            raise ValueError("the given stop words path  is in invalid.")
+            raise ValueError("the given stop words path %s is in invalid."%(stop_words_path))
         for line in contents.splitlines():
             self.stop_words.add(line.strip())
         print("\nsuccess in getting stopwords\n") 
-    def fit_transform(self,textlist):
-        self.settfidf('resource/stop_words.txt')
+    def fit_transform(self,path,textlist):
+        #self.settfidf('resource/stop_words.txt')
+        self.settfidf(os.path.join(path,'stop_words.txt'))
         #if isinstance(textlist,list):
         if 1:
             tf = self.tfidf.fit_transform(textlist)
@@ -154,12 +155,12 @@ class GroceryClassMapping(object):
 
 
 class GroceryTextConverter(object):
-    def __init__(self, custom_tokenize=None):
+    def __init__(self,name='./',custom_tokenize=None):
         self.text_prep = GroceryTextPreProcessor()
         self.feat_gen = GroceryFeatureGenerator()
         self.class_map = GroceryClassMapping()
         self.custom_tokenize = custom_tokenize
-
+	self.name =name 
     def get_class_idx(self, class_name):
         return self.class_map.to_idx(class_name)
 
@@ -172,7 +173,7 @@ class GroceryTextConverter(object):
             return feat
         return feat, self.class_map.to_idx(class_name)
     def to_model_one(self, text, class_name=None):
-        feat = self.feat_gen.fit_transform(self.text_prep.preprocess(text, self.custom_tokenize))
+        feat = self.feat_gen.fit_transform(self.name,self.text_prep.preprocess(text, self.custom_tokenize))
         return feat
 
     def to_model(self, texts, class_name=None):
@@ -185,7 +186,7 @@ class GroceryTextConverter(object):
             feats = self.feat_gen.transform(reviews)	
             return feats
         else:
-            feats = self.feat_gen.fit_transform(reviews)	
+            feats = self.feat_gen.fit_transform(self.name,reviews)	
             return feats, [self.class_map.to_idx(e) for e in class_name]
 
     def convert_text(self, text_src, delimiter, output=None):
@@ -212,7 +213,6 @@ class GroceryTextConverter(object):
         self.text_prep.save(os.path.join(dest_dir, config['text_prep']))
         self.feat_gen.save(os.path.join(dest_dir, config['feat_gen']))
         self.class_map.save(os.path.join(dest_dir, config['class_map']))
-
 	#feat_dest_file =os.path.join(dest_dir, config['feat_gen'])
         #cPickle.dump(self, open(feat_dest_file, 'wb'), -1) 
     def load(self, src_dir):

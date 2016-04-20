@@ -20,12 +20,12 @@ class MSSQL:
 
     """
 
-    def __init__(self,host,user,pwd,db):
+    def __init__(self,host,user,pwd,db,port='1433'):
         self.host = host
         self.user = user
         self.pwd = pwd
         self.db = db
-
+	self.port = port
     def __GetConnect(self):
         """
         得到连接信息
@@ -33,7 +33,7 @@ class MSSQL:
         """
         if not self.db:
             raise(NameError,"没有设置数据库信息")
-        self.conn = pymssql.connect(host=self.host,user=self.user,password=self.pwd,database=self.db,charset="utf8")
+        self.conn = pymssql.connect(host=self.host,user=self.user,password=self.pwd,database=self.db,charset="utf8",port =self.port)
         cur = self.conn.cursor()
         if not cur:
             raise(NameError,"连接数据库失败")

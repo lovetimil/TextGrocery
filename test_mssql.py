@@ -10,12 +10,6 @@ from pandas import Series,DataFrame
 
 	    
 
-#train_file = 'data/labeledTrainData.tsv' 
-train_file = 'data/cntraindata.csv' 
-#test_file = 'data/testData.tsv'
-test_file = 'data/cntestdata.csv'
-output_file = 'data/cnbow_predictions.csv'
-stop_file = 'resource/stop_words.txt'
 #
 ms = MSSQL(host="192.168.1.200",user="xiehuabo",pwd="xhb123",db="tt_highlights_news")
 #reslist = ms.ExecQuery('''select nid,cid1,htmlcontent from (select nid,cid1,
@@ -50,14 +44,14 @@ train = DataFrame(dic)
 test = DataFrame(tdic)
 #
 
-#grocery = Grocery('test')
+grocery = Grocery('classfynews_instance')
 
-#train_in = [train['contents'],train['type']]
-#grocery.train(train_in)
-#print grocery.get_load_status()
+train_in = [train['contents'],train['type']]
+grocery.train(train_in)
+print grocery.get_load_status()
 #grocery.save()
 
-copy_grocery = Grocery('test')
+copy_grocery = Grocery('classfynews_instance')
 copy_grocery.load()
 #copy_grocery = grocery
 test_in = [test['contents'],test['type']]
